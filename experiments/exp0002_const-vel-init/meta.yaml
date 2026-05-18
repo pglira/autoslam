@@ -1,0 +1,7 @@
+parent: exp0001_naive-p2p-icp
+description: "Frame-to-frame point-to-point ICP with constant-velocity init (propagate prev Δpose)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Constant-velocity init dramatically reduces 01 (highway, was 47.1%) and probably 04 (short, was 60.7%). Urban sequences barely change because identity init was already inside ICP's basin."
