@@ -3,30 +3,39 @@
 > Current research state. Past states preserved in git history; do not append-log here.
 
 ## Current best
-- **exp0002_const-vel-init** — dev 17.04%, **full 21.24%**, rot 0.036 deg/m.
-- Per-seq full: `00=17.7 01=16.6 02=30.0 03=47.6 04=26.3 05=15.6 06=13.7 07=17.9 08=17.4 09=26.4 10=23.1`.
+- **exp0003_kdtree-voxel1m** — dev 6.85%, **full 7.99%**, rot 0.023 deg/m.
+- Per-seq full: `00=7.5 01=7.1 02=9.0 03=12.8 04=16.8 05=5.8 06=6.3 07=5.7 08=8.0 09=9.5 10=10.9`.
 
-## Last delta (exp0001 → exp0002, constant-velocity init)
-- Highway (01) **47.1 → 16.6** as predicted — biggest single win.
-- Short straight (04) **60.7 → 26.3** as predicted.
-- Residential (10) **38.1 → 23.1** — bonus win, similar dynamics.
-- Country road (03) **53.8 → 47.6** — only modest improvement; sparse features still dominate.
-- **Regression on 06: 11.7 → 13.7.** Small but unexpected. Hypothesis: 06 is short urban with sharp turns where const-vel extrapolates *wrong* direction across rotation discontinuities. Identity init was fine because the basin of attraction held; warm-start introduces a wrong prior. Confirm by inspecting 06 ICP convergence iters next time we modify the engine.
+## Last delta (exp0002 → exp0003, kd-tree + 1.0 m voxels)
+- Universal win — every sequence improved.
+- 03 (country road) **47.58 → 12.81** as predicted; correspondence-count starvation was the issue.
+- 02 (long urban) **29.97 → 8.99** — surprise; denser correspondences also helped on long drifty runs.
+- 09 (mixed) **26.40 → 9.53** — similar story.
+- 06 regression from exp0002 fully recovered: **13.70 → 6.25**.
+- Walltime full-eval **137.8 → 66.4 s** despite ~3× more points per scan — kd-tree is amortized faster than brute force.
 
 ## Current direction
-Aggregate is now dominated by 03 (country road, 47.6%) and 09/04 (~26%). The remaining 11 sequences average ~16% — drift compounding in the long urban runs is now the next-biggest pile of error to chase.
+We've moved from "naive baseline" to "competent ICP" in three experiments (60.4 → 25.2 → 21.2 → 8.0). The remaining error landscape:
 
-Two complementary directions, both will go in next experiments:
-1. **Smaller voxels via kd-tree NN** — current 2.0 m voxels yield ~1500 points per scan in 03's sparse country road, which means correspondence sets are tiny. Drop to 1.0 m or 0.5 m, but brute-force won't fit the budget — needs kd-tree. This is the **next experiment (exp0003)**.
-2. **Frame-to-map** with sliding window — will primarily attack drift on long sequences (00, 02, 08). Probably exp0004 or later.
+| Tier | Sequences | Trans% | Dominant error source |
+|---|---|---|---|
+| Low | 05, 07, 06 | 5–7% | Probably near the frame-to-frame ICP ceiling |
+| Medium | 00, 01, 02, 08 | 7–9% | Accumulated drift on longer runs |
+| Higher | 03, 09, 10 | 9–13% | Sparse features + drift |
+| Worst | 04 | 16.8% | Short sequence (271 frames); sub-traj denominator small |
+
+The biggest remaining aggregate-mover is **drift on the long sequences**. To attack it, the next step is **frame-to-map with a sliding window** (exp0004): keep the last K frames' downsampled points, transform into the current frame's coordinate system as a unified "local map" target, ICP source = current scan against that map. Eliminates per-frame integration error.
+
+Secondary direction: 04's 16.8% is suspicious. Only 271 frames, but ICP should still work. Worth a targeted look — possibly the sub-traj aggregation is brittle on very short paths (only 3 buckets active: 100m, 200m, 300m).
 
 ## Open questions
-- Why does 06 regress with const-vel? Hypothesis above is testable but not urgent.
-- 03 country road is at 47.6%. Need diagnostics: how many correspondences per frame on 03? If <100, the ICP is essentially fitting noise.
-- 08 is essentially flat at ~17% across both experiments. What's the dominant error source there — drift, miscorrespondences, or something else?
+- For exp0004 (frame-to-map): how large a window? Too short → just smoothing across 2-3 frames; too long → stale geometry causes wrong correspondences when scene changes. KISS-ICP uses ~100 m of map. Start with K=5 frames as a baseline, tune later.
+- 04 still 16.8% — is the SLAM actually broken there, or is the metric noisy on short sequences? Inspect predicted vs GT trajectory directly.
+- We're approaching the regime where each experiment yields ~1–3% improvement instead of 4–13%. Reflection cadence should still trigger at the 6-experiment mark; we're at 3 experiments since the last reflection (which was bootstrap).
 
 ## What's working (don't lose)
-- Const-vel init: KEEP. Don't revisit identity init.
-- Voxel downsample with `std::map` (deterministic sorted iteration): KEEP.
-- Hand-rolled 3×3 Jacobi SVD: KEEP — no external deps, deterministic, fast enough.
-- Brute-force NN: REPLACE soon (limiting voxel size).
+- Const-vel init: KEEP.
+- Voxel downsample 1.0 m + `std::map` deterministic iteration: KEEP.
+- Kd-tree NN: KEEP. Build-once-per-target-frame inside ICP.
+- 3×3 Jacobi SVD: KEEP, no dep, fast enough.
+- C++17 single-file, zero external deps: KEEP for now. Will need a vendored kd-tree or PCL later if exp0004+ get more complex, but holding off as long as possible.

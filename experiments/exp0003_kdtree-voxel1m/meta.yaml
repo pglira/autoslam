@@ -1,0 +1,7 @@
+parent: exp0002_const-vel-init
+description: "Add deterministic kd-tree NN; drop voxel size 2.0m -> 1.0m for ~4x more points per scan."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Finer voxels expose more geometry, especially on sparse-feature sequence 03 (47.6% -> hopefully <25%). Kd-tree NN amortizes; total wall should be comparable or faster than exp0002 despite ~4x points. Also small wins everywhere from denser correspondences."
