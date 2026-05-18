@@ -146,8 +146,9 @@ Count rows in `results.tsv` since the last `journal/NNNN_reflection.md` (highest
 
 ## 7. Domain facts (KITTI odometry, sequences 00–10)
 
+- **LiDAR-only input.** The only sensor data available is Velodyne point clouds (`{sequence_dir}/velodyne/*.bin`). Camera images (`image_0/..image_3/`) are NOT downloaded and those directories do not exist. Do not design methods that use images; do not attempt to open them.
 - **Velodyne scans are already motion-compensated (deskewed).** Do NOT implement deskewing/motion correction on the raw point clouds. Wasted effort.
-- **Calibration is in scope.** `calib.txt` provides `Tr` (Velodyne → camera-0) and intrinsics `P0..P3`. You may use `Tr` as-is, refine it online (continuous extrinsic estimation), or estimate it from scratch. Output poses must be in camera frame regardless.
+- **Calibration is in scope.** `calib.txt` provides `Tr` (Velodyne → camera-0) and intrinsics `P0..P3`. You may use `Tr` as-is, refine it online (continuous extrinsic estimation), or estimate it from scratch. (`P0..P3` are camera intrinsics; they exist in the file for compatibility with the official format but are irrelevant for LiDAR-only SLAM.) Output poses must be in camera frame regardless — apply `Tr` to convert from LiDAR frame.
 - **Sequence character** — useful when interpreting per-sequence breakdowns:
   - 00, 02, 05, 06, 07, 09 — urban / suburban with loops
   - 01 — highway, fast, sparse features

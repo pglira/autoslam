@@ -8,7 +8,7 @@ Download from https://www.cvlibs.net/datasets/kitti/eval_odometry.php (requires 
 2. **`data_odometry_calib.zip`** (~1 MB) — calibration + per-frame timestamps
 3. **`data_odometry_poses.zip`** (~4 MB) — ground-truth poses for sequences 00-10
 
-Color/grayscale image zips are NOT needed for LiDAR-only SLAM.
+**Do NOT download the image zips** (`data_odometry_color.zip`, `data_odometry_gray.zip`). autoslam is LiDAR-only by design — agent code MUST NOT attempt to read camera images. The `image_0/..image_3/` directories will not exist; any code that opens them will fail.
 
 ## Unzipping
 
@@ -53,4 +53,5 @@ wc -l dataset/poses/00.txt                  # expect 4541
 
 - This directory is gitignored — the harness treats it as read-only.
 - KITTI Velodyne scans are already motion-compensated (deskewed). SLAM implementations should not reimplement deskewing.
+- LiDAR-only: do not download or use camera images. The harness contract does not expose image paths.
 - Sequences 11-21 have no ground truth and are not used by the autoslam loop (the loop scores against the official metric on 00-10 only).
