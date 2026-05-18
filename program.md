@@ -83,6 +83,18 @@ Any structure, any compiled language, anywhere under the experiment directory. Y
 - Output: write `{output_path}` as a KITTI trajectory — N lines, each 12 space-separated floats (row-major 3×4 matrix), poses in **camera frame** (KITTI convention). The harness validates: must have exactly the same line count as the input timestamp file, every line must parse as 12 finite floats.
 - Exit 0 on success. Any non-zero exit, signal, OOM, or timeout = `crash` for that sequence.
 
+### Docker (optional, per experiment)
+If your method has dependencies that are awkward to vendor natively (CUDA toolchain, ROS, a specific Python/Conda stack, a heavyweight C++ tree), package the experiment as a Docker image. Most experiments should NOT use Docker — only reach for it when native build is genuinely impractical. Docker is preinstalled and your user is in the `docker` group (no `sudo` needed).
+
+When you do use Docker:
+- **`build.sh`** builds the image AND writes an executable `./slam` wrapper next to itself. Tag the image uniquely per experiment, e.g. `autoslam/expNNNN_<slug>:latest`. The Dockerfile lives inside the experiment dir. Pin the base image by digest (`FROM ubuntu@sha256:...`), not by tag — `:latest` is not reproducible. Pin package versions inside the image too.
+- **`./slam`** is a shell wrapper that does `docker run` with: `--rm`, `--network=none` (no runtime network), `--memory=8g --memory-swap=8g` (honor the 8 GB cap; `ulimit -v` from the parent shell does NOT cross into the container), `--cpuset-cpus="$(cat /sys/fs/cgroup/cpuset.cpus.effective 2>/dev/null || echo 0-$(($(nproc)-1)))"` or read your inherited cpuset from `/proc/self/status` (the harness's `taskset` pinning likewise does NOT propagate), bind-mounts for `{sequence_dir}` (read-only), `{calib_path}` (ro), `{timestamps_path}` (ro), and the parent dir of `{output_path}` (read-write), plus the config file itself (ro). Trap SIGTERM/SIGINT in the wrapper and `docker kill` the container on signal so the harness `timeout` actually stops the work.
+- **Determinism still applies.** Containerized runs are re-run by the harness and bit-compared. Pin everything: image digest, library versions, RNG seeds, thread counts. Float reductions inside the container have the same determinism requirements as native code.
+- **Resource accounting:** the harness's `/usr/bin/time -v` measures the `docker run` client process, so peak-RSS numbers will be misleading. That's OK — the cap is enforced by `--memory`, not by measurement.
+- **No daemon mutation.** Don't `docker system prune`, don't touch other images, don't write to `/var/lib/docker`. Clean up your own containers via `--rm`; images stay (rebuild is idempotent).
+
+You are still bound by the same `./slam <config_path>` invocation, the same trajectory output format, and the same `meta.yaml.threads` declaration (declare the threads your container actually uses).
+
 ---
 
 ## 4. Iteration loop (one experiment per invocation)
