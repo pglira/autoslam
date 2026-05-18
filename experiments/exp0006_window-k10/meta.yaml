@@ -1,0 +1,7 @@
+parent: exp0005_maxdist-schedule
+description: "Sliding-window size K: 5 -> 10 (single-variable ablation)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "More frames in the local map give more anchoring context. Could help drift on 02/08 but risks staleness on fast/turning sequences. Mild effect expected; informative either way."
