@@ -1,0 +1,7 @@
+parent: exp0006_window-k10
+description: "Sliding-window K: 10 -> 20 (testing monotonicity)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "K=5->10 dropped AGG 3.03->2.15. Larger window may keep helping (more context, smoother drift) or may regress (older geometry too stale on fast sequences)."
