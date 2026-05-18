@@ -1,2 +1,3 @@
 exp	parent	timestamp	language	status	dev_trans_pct	dev_rot_deg_per_m	dev_seq_00	dev_seq_05	dev_seq_07	full_trans_pct	full_rot_deg_per_m	full_per_seq	dev_wall_s	full_wall_s	peak_rss_mb	description
 exp0000_identity		2026-05-18T20:17:35Z	c	keep	60.4067	0.298047	61.660	57.877	61.836				0.0		1	Identity poses; harness contract reference, not a SLAM.
+exp0001_naive-p2p-icp	exp0000_identity	2026-05-18T20:36:20Z	cpp	keep	20.2386	0.036077	21.001	18.252	23.665	25.2286	0.047208	21.001/47.132/33.621/53.781/60.704/18.252/11.703/23.665/16.853/27.020/38.084	117.4	231.4	14	Frame-to-frame point-to-point ICP, voxel 2.0m downsample, brute-force NN, identity init.

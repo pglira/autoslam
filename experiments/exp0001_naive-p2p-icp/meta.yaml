@@ -1,0 +1,7 @@
+parent: exp0000_identity
+description: "Frame-to-frame point-to-point ICP, voxel 2.0m downsample, brute-force NN, identity init."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Any working ICP crushes 60.4% identity baseline. Expect 5-15% trans error — drift compounds frame-to-frame."
