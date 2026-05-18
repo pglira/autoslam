@@ -3,39 +3,34 @@
 > Current research state. Past states preserved in git history; do not append-log here.
 
 ## Current best
-- **exp0003_kdtree-voxel1m** — dev 6.85%, **full 7.99%**, rot 0.023 deg/m.
-- Per-seq full: `00=7.5 01=7.1 02=9.0 03=12.8 04=16.8 05=5.8 06=6.3 07=5.7 08=8.0 09=9.5 10=10.9`.
+- **exp0004_frame-to-map-k5** — dev 3.29%, **full 3.57%**, rot 0.011 deg/m.
+- Per-seq full: `00=3.69 01=3.11 02=3.98 03=5.90 04=1.45 05=2.56 06=1.25 07=3.20 08=3.77 09=3.46 10=5.57`.
 
-## Last delta (exp0002 → exp0003, kd-tree + 1.0 m voxels)
-- Universal win — every sequence improved.
-- 03 (country road) **47.58 → 12.81** as predicted; correspondence-count starvation was the issue.
-- 02 (long urban) **29.97 → 8.99** — surprise; denser correspondences also helped on long drifty runs.
-- 09 (mixed) **26.40 → 9.53** — similar story.
-- 06 regression from exp0002 fully recovered: **13.70 → 6.25**.
-- Walltime full-eval **137.8 → 66.4 s** despite ~3× more points per scan — kd-tree is amortized faster than brute force.
+## Last delta (exp0003 → exp0004, K=5 sliding-window map)
+- Universal improvement. Aggregate 7.99 → 3.57 (-55% relative).
+- **04 cratered: 16.76 → 1.45 (−15.31).** My prediction that frame-to-map wouldn't help 04 was wrong — the local map gives short sequences enough context to anchor properly. Lesson: don't preemptively gate which sequences a fix can help.
+- 03 (country road) 12.81 → 5.90 — still the highest "normal" sequence.
+- 10 (residential) 5.57 — second highest, mild drift.
+- Walltime 66 → 138 s, still well within cap.
 
 ## Current direction
-We've moved from "naive baseline" to "competent ICP" in three experiments (60.4 → 25.2 → 21.2 → 8.0). The remaining error landscape:
+Approaching state-of-the-art naive ICP territory (KISS-ICP-class results sit around 0.5%, so we have headroom). Remaining heads to chase:
 
-| Tier | Sequences | Trans% | Dominant error source |
-|---|---|---|---|
-| Low | 05, 07, 06 | 5–7% | Probably near the frame-to-frame ICP ceiling |
-| Medium | 00, 01, 02, 08 | 7–9% | Accumulated drift on longer runs |
-| Higher | 03, 09, 10 | 9–13% | Sparse features + drift |
-| Worst | 04 | 16.8% | Short sequence (271 frames); sub-traj denominator small |
+- **03 (5.90%) + 10 (5.57%)** are the top two now. Both involve sparser geometry segments. Investigate per-frame correspondence counts and convergence patterns there.
+- **MAX_DIST schedule** — at 3.0 m gate during all iters, fast/large motion frames still occasionally pull in wrong correspondences. Tighten after iter 0. Cheap, deterministic, mild win expected. Could combine in exp0005.
+- **Point-to-plane ICP** — meaningful step up. Compute normals on the local map (PCA on local k-NN around each point), then minimize point-to-tangent-plane distance. Costlier but should match the 1-3% regime. Probably exp0006 or exp0007.
+- **Window size sweep** — is K=5 the right choice? Smaller K = less stale geometry. Larger K = more context. Could be a quick ablation, but probably small effect.
 
-The biggest remaining aggregate-mover is **drift on the long sequences**. To attack it, the next step is **frame-to-map with a sliding window** (exp0004): keep the last K frames' downsampled points, transform into the current frame's coordinate system as a unified "local map" target, ICP source = current scan against that map. Eliminates per-frame integration error.
-
-Secondary direction: 04's 16.8% is suspicious. Only 271 frames, but ICP should still work. Worth a targeted look — possibly the sub-traj aggregation is brittle on very short paths (only 3 buckets active: 100m, 200m, 300m).
+## Plan for next experiments
+1. **exp0005**: MAX_DIST schedule (3.0 m → 1.5 m after iter 0). Tiny code change, complements frame-to-map.
+2. **exp0006**: point-to-plane ICP (normals on the local map). Bigger change. Triggers reflection step (will be 6 since bootstrap).
+3. **exp0007+**: TBD based on results — possibly window size sweep, or adaptive correspondence distance per KISS-ICP §III-C.
 
 ## Open questions
-- For exp0004 (frame-to-map): how large a window? Too short → just smoothing across 2-3 frames; too long → stale geometry causes wrong correspondences when scene changes. KISS-ICP uses ~100 m of map. Start with K=5 frames as a baseline, tune later.
-- 04 still 16.8% — is the SLAM actually broken there, or is the metric noisy on short sequences? Inspect predicted vs GT trajectory directly.
-- We're approaching the regime where each experiment yields ~1–3% improvement instead of 4–13%. Reflection cadence should still trigger at the 6-experiment mark; we're at 3 experiments since the last reflection (which was bootstrap).
+- Why is 10 still relatively high (5.57%)? Residential with parked cars — maybe many dynamic-ish features messing up correspondences? Worth investigation.
+- Window K=5 sized by what intuition? Smaller windows on highway, larger on slow urban?
+- Should map_buf store the world-frame points instead of V_j-frame + M[j]? Same computation but world storage avoids the per-iter recompute. Defer — current works.
 
 ## What's working (don't lose)
-- Const-vel init: KEEP.
-- Voxel downsample 1.0 m + `std::map` deterministic iteration: KEEP.
-- Kd-tree NN: KEEP. Build-once-per-target-frame inside ICP.
-- 3×3 Jacobi SVD: KEEP, no dep, fast enough.
-- C++17 single-file, zero external deps: KEEP for now. Will need a vendored kd-tree or PCL later if exp0004+ get more complex, but holding off as long as possible.
+- Const-vel init, kd-tree NN, voxel 1.0 m, sliding window K=5, deterministic Jacobi SVD.
+- Single-file C++, zero external deps.

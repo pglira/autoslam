@@ -1,0 +1,7 @@
+parent: exp0003_kdtree-voxel1m
+description: "Sliding-window local map of K=5 recent scans as ICP target (was frame-to-frame)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Multi-frame target damps frame-to-frame integration error on long sequences. Expect 02, 08, 09, 10 to drop materially; 04 unaffected (too short)."
