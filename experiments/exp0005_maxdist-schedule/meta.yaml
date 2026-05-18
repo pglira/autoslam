@@ -1,0 +1,7 @@
+parent: exp0004_frame-to-map-k5
+description: "Two-stage MAX_DIST in ICP: 3.0m on iter 0, 1.5m on subsequent iters."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Once ICP is close, the 3.0m gate lets in wrong correspondences that bias the SVD. Tightening should produce mild but consistent improvement, especially on slow/precise urban scenes."
