@@ -3,34 +3,31 @@
 > Current research state. Past states preserved in git history; do not append-log here.
 
 ## Current best
-- **exp0004_frame-to-map-k5** — dev 3.29%, **full 3.57%**, rot 0.011 deg/m.
-- Per-seq full: `00=3.69 01=3.11 02=3.98 03=5.90 04=1.45 05=2.56 06=1.25 07=3.20 08=3.77 09=3.46 10=5.57`.
+- **exp0006_window-k10** — dev 1.91%, **full 2.15%**, rot 0.0063 deg/m.
+- Per-seq full: `00=2.06 01=1.93 02=2.60 03=3.38 04=0.90 05=1.64 06=0.83 07=1.89 08=2.19 09=2.00 10=3.09`.
 
-## Last delta (exp0003 → exp0004, K=5 sliding-window map)
-- Universal improvement. Aggregate 7.99 → 3.57 (-55% relative).
-- **04 cratered: 16.76 → 1.45 (−15.31).** My prediction that frame-to-map wouldn't help 04 was wrong — the local map gives short sequences enough context to anchor properly. Lesson: don't preemptively gate which sequences a fix can help.
-- 03 (country road) 12.81 → 5.90 — still the highest "normal" sequence.
-- 10 (residential) 5.57 — second highest, mild drift.
-- Walltime 66 → 138 s, still well within cap.
+## Direction after reflection (post-exp0006)
+Just wrote `journal/0001_reflection.md`. Six straight wins. Now in the regime where each step is ~0.5–1% rather than 4–13%. Two main fronts:
 
-## Current direction
-Approaching state-of-the-art naive ICP territory (KISS-ICP-class results sit around 0.5%, so we have headroom). Remaining heads to chase:
+1. **Continue scaling K** — exp0007 = K=20. If still monotonic, exp0008 may consider K=30 but compute budget tightens.
+2. **Densify or improve correspondences** — finer source voxel (0.5 m), point-to-plane, adaptive MAX_DIST. These get us under 1.5% probably.
 
-- **03 (5.90%) + 10 (5.57%)** are the top two now. Both involve sparser geometry segments. Investigate per-frame correspondence counts and convergence patterns there.
-- **MAX_DIST schedule** — at 3.0 m gate during all iters, fast/large motion frames still occasionally pull in wrong correspondences. Tighten after iter 0. Cheap, deterministic, mild win expected. Could combine in exp0005.
-- **Point-to-plane ICP** — meaningful step up. Compute normals on the local map (PCA on local k-NN around each point), then minimize point-to-tangent-plane distance. Costlier but should match the 1-3% regime. Probably exp0006 or exp0007.
-- **Window size sweep** — is K=5 the right choice? Smaller K = less stale geometry. Larger K = more context. Could be a quick ablation, but probably small effect.
+## Remaining error landscape
+- 03 (3.38%) — country road, sparse features. Despite the big drop from 12.8%, still highest "real" sequence.
+- 10 (3.09%) — residential, parked vehicles. Possibly dynamic-feature contamination.
+- 02 (2.60%), 08 (2.19%) — long urban with loops; drift residual after frame-to-map.
+- 06 (0.83%) and 04 (0.90%) — sub-1%, essentially saturated for current method class.
 
-## Plan for next experiments
-1. **exp0005**: MAX_DIST schedule (3.0 m → 1.5 m after iter 0). Tiny code change, complements frame-to-map.
-2. **exp0006**: point-to-plane ICP (normals on the local map). Bigger change. Triggers reflection step (will be 6 since bootstrap).
-3. **exp0007+**: TBD based on results — possibly window size sweep, or adaptive correspondence distance per KISS-ICP §III-C.
-
-## Open questions
-- Why is 10 still relatively high (5.57%)? Residential with parked cars — maybe many dynamic-ish features messing up correspondences? Worth investigation.
-- Window K=5 sized by what intuition? Smaller windows on highway, larger on slow urban?
-- Should map_buf store the world-frame points instead of V_j-frame + M[j]? Same computation but world storage avoids the per-iter recompute. Defer — current works.
+## Planning for the immediate next block
+- **exp0007**: K=20.
+- **exp0008**: source voxel 0.5 m (target stays 1.0 m).
+- **exp0009**: TBD per outcomes.
 
 ## What's working (don't lose)
-- Const-vel init, kd-tree NN, voxel 1.0 m, sliding window K=5, deterministic Jacobi SVD.
-- Single-file C++, zero external deps.
+- Const-vel init, kd-tree NN, voxel 1.0 m, sliding window, MAX_DIST schedule, deterministic Jacobi SVD.
+- Single-file C++, zero external deps. Walltime budget healthy at 221s full / cap 30 min/seq.
+
+## Open questions
+- Will K=20 still help, or does staleness win?
+- If source voxel finer hurts walltime, can we get same gain via finer target voxel + same source?
+- Point-to-plane normal estimation budget — defer until adaptive-distance ablation done.

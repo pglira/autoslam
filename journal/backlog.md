@@ -5,10 +5,12 @@ Prioritized list of ideas to try. Reorder freely. Check off when an experiment c
 Format: `- [ ] <one-line idea> — *<short rationale>*`
 
 ## High priority
-- [ ] **MAX_DIST schedule** — exp0005. 3.0 m on iter 0, 1.5 m on iter 1+. Cheap one-variable change.
-- [ ] **Point-to-plane ICP with normals on local map** — exp0006 (likely). Estimate normals via PCA on local k-NN around each map point; minimize point-to-tangent-plane error. Step up to KISS-ICP-class numbers.
-- [ ] **Investigate 10 (residential, 5.57%)** — second-highest sequence after 03. Possibly dynamic-object contamination of correspondences.
-- [ ] **Window size ablation** — try K=3 and K=10. Likely small effect but informative.
+- [ ] **K=20** — exp0007. Continue the K trend (5→10 was -0.88% AGG; is it monotonic?).
+- [ ] **Source voxel 0.5 m** — exp0008 likely. Target stays 1.0 m. More correspondences without changing map density.
+- [ ] **KISS-ICP-style adaptive MAX_DIST** — replace fixed 1.5 m tight gate with a data-driven σ tracker.
+- [ ] **Point-to-plane ICP** — biggest remaining algorithmic step. Needs careful normal-estimation budget management (compute once per scan-entry into buffer, transform on use).
+- [ ] **Investigate 10 (residential, 3.09%)** — possibly dynamic-feature contamination.
+- [ ] **Investigate 03 (3.38%)** — still highest "real" sequence; sparse features specific failure mode?
 
 ## Medium priority
 - [x] Voxel downsampling — *done in exp0001 (2.0 m, centroid)*
@@ -29,6 +31,8 @@ Format: `- [ ] <one-line idea> — *<short rationale>*`
 - [x] **exp0002**: constant-velocity init (25.2 → 21.2% full)
 - [x] **exp0003**: kd-tree NN + 1.0 m voxels (21.2 → 8.0% full)
 - [x] **exp0004**: sliding-window map K=5 (8.0 → 3.6% full)
+- [x] **exp0005**: MAX_DIST schedule 3.0/1.5 (3.6 → 3.0% full)
+- [x] **exp0006**: window K=10 (3.0 → 2.15% full)
 
 ## Medium priority
 - [x] Voxel downsampling — *done in exp0001 (2.0 m, centroid representative)*
