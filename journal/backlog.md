@@ -33,6 +33,9 @@ Format: `- [ ] <one-line idea> — *<short rationale>*`
 - [x] **exp0004**: sliding-window map K=5 (8.0 → 3.6% full)
 - [x] **exp0005**: MAX_DIST schedule 3.0/1.5 (3.6 → 3.0% full)
 - [x] **exp0006**: window K=10 (3.0 → 2.15% full)
+- [x] **exp0007**: window K=20 (2.15 → 1.71% full)
+- [x] **exp0008**: source voxel 0.5m (1.71 → 1.06% full)
+- [x] **exp0009**: trimmed ICP 80% (1.06 → 0.97% full, SUB-1%)
 
 ## Medium priority
 - [x] Voxel downsampling — *done in exp0001 (2.0 m, centroid representative)*

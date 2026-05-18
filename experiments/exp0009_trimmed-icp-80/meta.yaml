@@ -1,0 +1,7 @@
+parent: exp0008_src-voxel-05
+description: "Trimmed ICP: drop worst 20% correspondences by distance from iter 1+."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Rank-based trimming complements the absolute-distance gate. Removes bias from outlier matches that pass the 1.5m gate but are still wrong. Expect biggest effect on highway (01, still 1.90%) and any sequence with dynamic/parked-vehicle features."
