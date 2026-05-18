@@ -1,0 +1,7 @@
+parent: exp0007_window-k20
+description: "Source voxel 0.5m (was 1.0m); map storage stays at 1.0m. ICP source ~4x denser."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Denser source -> better SVD gradient, less per-frame integration error. Walltime ~4x; full eval ~25 min/seq, under 30 min cap. Mild but consistent improvement expected, biggest on long sequences."
