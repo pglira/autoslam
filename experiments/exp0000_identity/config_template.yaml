@@ -1,0 +1,7 @@
+# Harness substitutes the {curly} placeholders per sequence per run.
+# Any other fields are passed through verbatim to the binary.
+sequence_dir: "{sequence_dir}"
+output_path: "{output_path}"
+timestamps_path: "{timestamps_path}"
+calib_path: "{calib_path}"
+time_budget_s: {time_budget_s}

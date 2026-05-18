@@ -1,0 +1,29 @@
+# KITTI dataset (user-populated, ~80 GB)
+/data/dataset/
+
+# Per-experiment build artifacts (rebuildable from build.sh)
+experiments/*/slam
+experiments/*/build/
+experiments/*/target/
+experiments/*/.cache/
+experiments/*/Cargo.lock
+
+# Eval devkit build artifacts
+eval/devkit/build/
+eval/devkit/evaluate_odometry
+
+# Lockfile + scratch
+journal/.in_flight
+/tmp_configs/
+/run_logs/
+
+# Local Claude tooling (skills, local settings) — not part of the project
+.claude/
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*~

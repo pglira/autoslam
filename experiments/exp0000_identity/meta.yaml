@@ -1,0 +1,7 @@
+parent: null
+description: "Identity poses; harness contract reference, not a SLAM."
+language: c
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Used only to validate that the harness contract is satisfied end-to-end. Scores ~100% trans error by construction."
