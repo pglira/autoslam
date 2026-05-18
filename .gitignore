@@ -8,6 +8,14 @@ experiments/*/target/
 experiments/*/.cache/
 experiments/*/Cargo.lock
 
+# Per-experiment harness outputs (regenerated each run)
+experiments/*/preds_dev/
+experiments/*/preds_full/
+experiments/*/preds_dev_recheck/
+
+# Run-time logs (per build, per sequence)
+/run_logs/
+
 # Eval devkit build artifacts
 eval/devkit/build/
 eval/devkit/evaluate_odometry

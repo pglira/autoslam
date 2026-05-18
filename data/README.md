@@ -39,6 +39,18 @@ data/
 
 Empty `sequences/00/velodyne/` ... `sequences/10/velodyne/` and an empty `poses/` directory have been pre-created as placeholders.
 
+## If calib lands in `dataset/calib/NN/` instead of `dataset/sequences/NN/`
+
+Some versions of the calib zip extract to `dataset/calib/NN/calib.txt` + `dataset/calib/NN/times.txt` rather than merging directly into the sequence directories. The harness expects the per-sequence layout (`dataset/sequences/NN/calib.txt`, `dataset/sequences/NN/times.txt`). Fix with symlinks:
+
+```bash
+cd data/dataset/sequences
+for s in 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21; do
+  ln -sf ../../calib/$s/calib.txt $s/calib.txt
+  ln -sf ../../calib/$s/times.txt $s/times.txt
+done
+```
+
 ## Verification
 
 After unzipping, sanity-check by running:
