@@ -1,0 +1,7 @@
+parent: exp0025_kitti-scan-fix-v2
+description: "Combine scan correction (exp0025) with source voxel 0.4m (exp0022's win). Budget gamble."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Both axes were independently confirmed positive. If they combine additively, expect full AGG ~0.75% (exp0025's 0.77 minus exp0022-vs-exp0020's 0.012). Budget risk: seq 00 might bust the dev cap."
