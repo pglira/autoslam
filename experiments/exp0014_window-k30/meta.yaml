@@ -1,0 +1,7 @@
+parent: exp0011_trim-motion-aware
+description: "Sliding-window K: 20 -> 30 (continue the K-scaling trend)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "K=5->10 won (-0.88% AGG), K=10->20 won (-0.44% AGG). K=20->30 likely diminishing returns. 01 highway may regress (staleness already showed at K=20)."

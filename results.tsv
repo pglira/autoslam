@@ -13,3 +13,4 @@ exp0010_adaptive-trim	exp0009_trimmed-icp-80	2026-05-19T00:39:27Z	cpp	keep	0.712
 exp0011_trim-motion-aware	exp0010_adaptive-trim	2026-05-19T01:08:59Z	cpp	keep	0.7129	0.003088	0.764	0.666	0.453	0.9583	0.003640	0.764/1.936/1.169/0.973/0.882/0.666/0.612/0.453/0.997/0.853/1.231	525.4	582.6	28	Skip trim when |prev_delta translation| > 2.0m (highway/fast-motion proxy).
 exp0012_point-to-plane	exp0011_trim-motion-aware	2026-05-19T01:24:34Z	cpp	reject	0.8541	0.004169	0.952	0.717	0.623				459.6		35	Point-to-plane ICP with k=8 PCA normals; trim block dropped (single-variable change).
 exp0013_p2pl-trim	exp0012_point-to-plane	2026-05-19T01:36:19Z	cpp	reject	0.9496	0.004504	1.043	0.845	0.585				508.6		35	Re-introduce motion-aware trim on top of point-to-plane (sort by p2pl residual^2).
+exp0014_window-k30	exp0011_trim-motion-aware	2026-05-19T01:46:23Z	cpp	partial	37.7047	0.170999	61.660	0.694	0.465				600.0		24	Sliding-window K: 20 -> 30 (continue the K-scaling trend).
