@@ -1,0 +1,7 @@
+parent: exp0033_tight-05
+description: "Minimal port: replace sliding-window deque with world-frame voxel-grid map (max_range=100m, N_max=20). Keep proven Kabsch ICP + trim + scan correction."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "exp0038-0041's KISS-ICP port failed in the linearized GN ICP. This isolates the map-structure change. If wins or near-equals exp0033, voxel grid is the right structural choice. If regresses, deque + frame-count windowing was actually doing important work."
