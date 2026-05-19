@@ -1,0 +1,7 @@
+parent: exp0016_adaptive-threshold
+description: "Full KISS-ICP recipe minus voxel scheme: adaptive τ + Geman-McClure with κ=(σ_t/3)²."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "exp0016 (adaptive τ alone) and exp0018 (kernel alone) each tied/regressed. KISS-ICP evaluates them together. Combination may unlock what neither did alone."
