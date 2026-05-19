@@ -1,0 +1,7 @@
+parent: exp0034_tight-03
+description: "Motion-aware tight gate: 0.5m on fast-motion frames (highway), 0.3m on slow (urban)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "exp0034's fixed 0.3m hurt 01 (highway). Schedules (exp0035/0036) only helped iter 1; the binding constraint is iter 2+. Motion-aware tight value targets the right scope: per-frame, not per-iter."
