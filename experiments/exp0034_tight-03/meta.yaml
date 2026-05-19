@@ -1,0 +1,7 @@
+parent: exp0033_tight-05
+description: "MAX_DIST_TIGHT 0.5 → 0.3m. Sweep continues; this probe likely finds the floor."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Trend monotonic 1.5→1.0→0.7→0.5. 0.3m sits at typical-residual size; either continues winning ~0.02-0.03 AGG, or regresses on jerky frames (seq 07, 09)."
