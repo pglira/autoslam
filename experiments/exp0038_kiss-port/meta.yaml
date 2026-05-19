@@ -1,0 +1,7 @@
+parent: exp0033_tight-05
+description: "Structural port of KISS-ICP: voxel hash map, linearized p2p, GM kernel, adaptive τ. First in a 3-5 experiment block."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Switching from sliding-window deque + kd-tree to KISS-ICP's voxel hash map unlocks bounded compute on long sequences. Linearized GN p2p with GM kernel handles outliers without trim. Expect roughly 0.65-0.80% AGG on first port; tune in exp0039+."
