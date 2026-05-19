@@ -1,0 +1,7 @@
+parent: exp0028_p2pl-corrected
+description: "Add Levenberg-Marquardt damping (multiplicative diagonal, λ=1e-3) to p2pl GN solver."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "exp0028/0030 ruled out normal-quality and parameter tuning. Next candidate: near-singular A^T A on planar correspondence sets. LM damping stabilizes; KISS-ICP and LOAM both use it."

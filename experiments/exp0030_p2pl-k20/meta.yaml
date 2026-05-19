@@ -1,0 +1,7 @@
+parent: exp0028_p2pl-corrected
+description: "Retry point-to-plane with NORMAL_K 8 -> 20 (KISS-ICP/IMLS-SLAM-class normal quality)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Both p2pl attempts (exp0012, exp0028) failed with k=8 normals. SOTA p2pl methods use k=20. Hypothesis: normal quality is the bottleneck — fix it before judging the algorithm class."
