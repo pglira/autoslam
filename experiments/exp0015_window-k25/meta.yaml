@@ -1,0 +1,7 @@
+parent: exp0011_trim-motion-aware
+description: "K: 20 -> 25 (probe between exp0007 K=20 working and exp0014 K=30 timeout)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "K=25 should fit the dev cap (seq 00 was ~50% done at 10 min on K=30, so K=25 should land near 8-9 min). Marginal metric improvement expected."
