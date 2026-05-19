@@ -1,0 +1,7 @@
+parent: exp0039_kiss-port-v2
+description: "Debug isolation: drop AdaptiveThreshold, use fixed max_corr_dist=1.0 and kernel=0.3. Per-frame trace of pose magnitude on first 10 frames."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Isolates whether the σ-explosion bug is in AdaptiveThreshold or in ICP/map. If exp0040 works at fixed gates, σ update is the bug. If still broken, ICP itself is."
