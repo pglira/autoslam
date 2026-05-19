@@ -614,7 +614,7 @@ int main(int argc, char **argv) {
     constexpr size_t MAX_POINTS_PER_VOX = 20;
     constexpr double INITIAL_THRESHOLD  = 2.0;     // m, adaptive τ_0
     constexpr double MIN_MOTION_TH      = 0.1;     // m, δ_min for σ accumulation
-    constexpr int    MAX_ITER           = 500;
+    constexpr int    MAX_ITER           = 30;
     constexpr double CONVERGENCE_TOL    = 1e-4;
 
     std::ofstream out(output_path);
@@ -674,21 +674,27 @@ int main(int argc, char **argv) {
         // Constant-velocity prediction.
         Mat4 initial_guess = mat4_mul(last_pose, last_delta);
 
-        // FIXED gates for debugging — replace adaptive_threshold.
-        constexpr double FIXED_MAX_CORR_DIST = 1.0;   // m, fixed gate
-        constexpr double FIXED_KERNEL_SCALE  = 0.3;   // m, fixed GM scale (~ σ_t = 0.3)
-        double sigma = FIXED_KERNEL_SCALE;             // kept variable name for log
-        double max_corr_dist = FIXED_MAX_CORR_DIST;
+        // Adaptive threshold (re-enabled, was fixed in exp0040 for isolation).
+        double sigma = adaptive_threshold.compute();
+        double max_corr_dist = 3.0 * sigma;
 
         // Run ICP.
         IcpResult r = align_points_to_map(source, local_map, initial_guess,
                                           max_corr_dist, sigma,
                                           MAX_ITER, CONVERGENCE_TOL);
-        Mat4 new_pose = r.T;
 
-        // Skip threshold update (not used).
+        // Non-convergence guard: if ICP ran to MAX_ITER without converging,
+        // its dx may still have been huge; reject and fall back to initial_guess.
+        Mat4 new_pose;
+        if (r.iters >= MAX_ITER) {
+            new_pose = initial_guess;
+        } else {
+            new_pose = r.T;
+        }
+
+        // Update adaptive threshold from CV deviation.
         Mat4 model_deviation = mat4_mul(mat4_inverse_se3(initial_guess), new_pose);
-        (void) model_deviation;
+        adaptive_threshold.update(model_deviation);
 
         // Update local map: transform frame_downsample (in LiDAR frame) to world, add,
         // and prune voxels far from origin (current LiDAR position).

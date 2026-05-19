@@ -1,0 +1,7 @@
+parent: exp0040_kiss-fixed
+description: "Three fixes from exp0040 debug: MAX_ITER 500→30, non-convergence guard (fall back to initial_guess), re-enable adaptive threshold."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Tracked down the explosion to frame 45 of seq 07 where ICP ran 501 iters without convergence, producing huge T_icp. Guards added; expect successful full-eval at last."
