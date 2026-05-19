@@ -1,0 +1,7 @@
+parent: exp0027_tight-1m
+description: "Retry point-to-plane ICP on the scan-corrected + tight-gate baseline. Reuses exp0012's p2pl machinery."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "exp0012's p2pl regressed on the pre-correction baseline. With scan correction + tighter residuals + cleaner geometry for normal estimation, p2pl may now win. Hypothesis-driven retry."
