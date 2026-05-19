@@ -1,0 +1,7 @@
+parent: exp0012_point-to-plane
+description: "Re-introduce motion-aware trim on top of point-to-plane (sort by p2pl residual^2)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "If exp0012's regression was caused by dropping trim, this recovers. If still worse than exp0011, the problem is the algorithm class (likely normal quality)."
