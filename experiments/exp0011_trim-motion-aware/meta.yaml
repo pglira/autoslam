@@ -1,0 +1,7 @@
+parent: exp0010_adaptive-trim
+description: "Skip trim when |prev_delta translation| > 2.0m (highway/fast-motion proxy)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "01 highway has ~10m/frame motion -> trim_frac=1.0 -> recovers exp0008 behavior on 01 (1.90% instead of 2.14%). Urban (<1m/frame) keeps 0.80 trim and exp0009 wins. Should produce universal improvement."
