@@ -1,0 +1,7 @@
+parent: exp0025_kitti-scan-fix-v2
+description: "MAX_DIST_TIGHT 1.5 → 1.0m on top of scan-corrected base."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Corrected scans have smaller residuals; 1.5m gate is too lax now. 1.0m drops more outliers without losing valid matches."
