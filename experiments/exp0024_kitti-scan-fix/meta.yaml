@@ -1,0 +1,7 @@
+parent: exp0022_src-voxel-04
+description: "Apply KITTI per-point vertical-angle correction (+0.205°) before downsampling. From IMLS-SLAM via KISS-ICP."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Documented HDL-64E beam-angle bias. Fix is well-established in the literature (Deschaud 2018, used by CT-ICP and KISS-ICP). Should produce a consistent small improvement across all sequences."
