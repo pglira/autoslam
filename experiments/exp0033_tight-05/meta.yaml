@@ -1,0 +1,7 @@
+parent: exp0032_tight-07
+description: "MAX_DIST_TIGHT 0.7 → 0.5m. Continue the monotonic sweep that won every prior step."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Trend monotonic across 1.5→1.0→0.7m. Residuals after const-vel + scan correction are 5-30cm typically. 0.5m gate has 2x headroom; likely still wins, but diminishing returns vs 0.7m."

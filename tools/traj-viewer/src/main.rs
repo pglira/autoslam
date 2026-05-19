@@ -13,7 +13,7 @@ use std::time::{Duration, Instant, SystemTime};
 
 use eframe::egui;
 use egui::{Color32, RichText, ScrollArea, Stroke};
-use egui_plot::{Line, Plot, PlotPoints};
+use egui_plot::{Line, MarkerShape, Plot, PlotPoints, Points};
 
 const REPO_DEFAULT: &str = "/data2/repos/autoslam";
 const DEFAULT_REFRESH_SECS: u64 = 2;
@@ -41,6 +41,26 @@ struct Experiment {
     full_trans_pct: Option<f64>,
     status: String,
     description: String,
+    // per-sequence translation error % parsed from results.tsv
+    dev_seq: HashMap<String, f64>,
+    full_seq: HashMap<String, f64>,
+}
+
+impl Experiment {
+    fn seq_error(&self, seq: &str, pred_set: &str) -> Option<f64> {
+        match pred_set {
+            "preds_dev" => self.dev_seq.get(seq).copied(),
+            "preds_full" => self.full_seq.get(seq).copied(),
+            _ => None, // preds_dev_recheck has no aggregated per-seq column
+        }
+    }
+}
+
+// "exp0027_tight-1m" -> 27
+fn exp_id_num(name: &str) -> Option<u32> {
+    let rest = name.strip_prefix("exp")?;
+    let digits: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
+    digits.parse().ok()
 }
 
 // Cached trajectory + the source file mtime at the time of load. The mtime lets
@@ -284,6 +304,88 @@ impl eframe::App for App {
                 });
             });
 
+        // ---- bottom: per-sequence translation error across experiments ----
+        egui::TopBottomPanel::bottom("err_chart")
+            .resizable(true)
+            .default_height(260.0)
+            .min_height(120.0)
+            .show(ctx, |ui| {
+                let pred_set_label = match self.pred_set.as_str() {
+                    "preds_dev" => "dev",
+                    "preds_full" => "full",
+                    "preds_dev_recheck" => "dev_recheck",
+                    other => other,
+                };
+                ui.horizontal(|ui| {
+                    ui.label(
+                        RichText::new(format!(
+                            "translation error % across experiments — seq {}, {}",
+                            self.selected_seq, pred_set_label,
+                        ))
+                        .strong(),
+                    );
+                });
+
+                let selected_name = self
+                    .selected_idx
+                    .and_then(|i| self.experiments.get(i).map(|e| e.name.clone()));
+
+                let mut pts: Vec<[f64; 2]> = Vec::new();
+                let mut sel_pt: Option<[f64; 2]> = None;
+                for e in &self.experiments {
+                    let Some(id) = exp_id_num(&e.name) else { continue };
+                    let Some(err) = e.seq_error(&self.selected_seq, &self.pred_set) else {
+                        continue;
+                    };
+                    let p = [id as f64, err];
+                    pts.push(p);
+                    if selected_name.as_deref() == Some(e.name.as_str()) {
+                        sel_pt = Some(p);
+                    }
+                }
+                pts.sort_by(|a, b| a[0].partial_cmp(&b[0]).unwrap());
+
+                if pts.is_empty() {
+                    ui.colored_label(
+                        Color32::GRAY,
+                        format!(
+                            "no per-seq data in results.tsv for seq {} / {}",
+                            self.selected_seq, pred_set_label,
+                        ),
+                    );
+                    return;
+                }
+
+                Plot::new("err_chart_plot")
+                    .show_grid(true)
+                    .legend(egui_plot::Legend::default())
+                    .x_axis_label("experiment id")
+                    .y_axis_label("translation error %")
+                    .show(ui, |plot_ui| {
+                        plot_ui.line(
+                            Line::new(PlotPoints::from(pts.clone()))
+                                .name("trans %")
+                                .stroke(Stroke::new(1.5, Color32::from_rgb(120, 170, 220))),
+                        );
+                        plot_ui.points(
+                            Points::new(PlotPoints::from(pts.clone()))
+                                .name("exp")
+                                .radius(3.5)
+                                .shape(MarkerShape::Circle)
+                                .color(Color32::from_rgb(120, 170, 220)),
+                        );
+                        if let Some(p) = sel_pt {
+                            plot_ui.points(
+                                Points::new(PlotPoints::from(vec![p]))
+                                    .name("selected")
+                                    .radius(6.5)
+                                    .shape(MarkerShape::Diamond)
+                                    .color(Color32::from_rgb(230, 90, 90)),
+                            );
+                        }
+                    });
+            });
+
         // ---- right: controls + plot ----
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
@@ -457,6 +559,8 @@ fn scan_experiments(repo: &Path) -> Vec<Experiment> {
             full_trans_pct: row.and_then(|r| r.full_trans_pct),
             status: row.map(|r| r.status.clone()).unwrap_or_default(),
             description: row.map(|r| r.description.clone()).unwrap_or_default(),
+            dev_seq: row.map(|r| r.dev_seq.clone()).unwrap_or_default(),
+            full_seq: row.map(|r| r.full_seq.clone()).unwrap_or_default(),
         });
     }
     out
@@ -468,7 +572,15 @@ struct ResultRow {
     dev_trans_pct: Option<f64>,
     full_trans_pct: Option<f64>,
     description: String,
+    dev_seq: HashMap<String, f64>,
+    full_seq: HashMap<String, f64>,
 }
+
+// Full sequences in canonical order — `full_per_seq` is a slash-separated list
+// of 11 values in this order.
+const FULL_SEQ_ORDER: [&str; 11] = [
+    "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10",
+];
 
 fn parse_results(path: &Path) -> HashMap<String, ResultRow> {
     let mut out = HashMap::new();
@@ -482,22 +594,56 @@ fn parse_results(path: &Path) -> HashMap<String, ResultRow> {
     let i_dev = idx("dev_trans_pct");
     let i_full = idx("full_trans_pct");
     let i_desc = idx("description");
+    let i_full_per_seq = idx("full_per_seq");
+    // any `dev_seq_NN` column → (col_idx, seq_name)
+    let dev_seq_cols: Vec<(usize, String)> = cols
+        .iter()
+        .enumerate()
+        .filter_map(|(i, c)| c.strip_prefix("dev_seq_").map(|s| (i, s.to_string())))
+        .collect();
+
     let (Some(i_exp), Some(i_status), Some(i_dev), Some(i_full), Some(i_desc)) =
         (i_exp, i_status, i_dev, i_full, i_desc)
     else {
         return out;
     };
+
     for line in lines {
         let f: Vec<&str> = line.split('\t').collect();
-        if f.len() <= i_desc.max(i_status).max(i_dev).max(i_full).max(i_exp) {
+        if f.len() <= [i_exp, i_status, i_dev, i_full, i_desc].into_iter().max().unwrap_or(0) {
             continue;
         }
         let name = f[i_exp].to_string();
+
+        let mut dev_seq = HashMap::new();
+        for (col, seq) in &dev_seq_cols {
+            if *col < f.len() {
+                if let Ok(v) = f[*col].parse::<f64>() {
+                    dev_seq.insert(seq.clone(), v);
+                }
+            }
+        }
+
+        let mut full_seq = HashMap::new();
+        if let Some(col) = i_full_per_seq {
+            if col < f.len() {
+                for (i, tok) in f[col].split('/').enumerate() {
+                    if let Some(seq) = FULL_SEQ_ORDER.get(i) {
+                        if let Ok(v) = tok.parse::<f64>() {
+                            full_seq.insert((*seq).to_string(), v);
+                        }
+                    }
+                }
+            }
+        }
+
         let row = ResultRow {
             status: f[i_status].to_string(),
             dev_trans_pct: f[i_dev].parse().ok(),
             full_trans_pct: f[i_full].parse().ok(),
-            description: f[i_desc].to_string(),
+            description: f.get(i_desc).copied().unwrap_or("").to_string(),
+            dev_seq,
+            full_seq,
         };
         out.insert(name, row);
     }
