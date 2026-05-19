@@ -51,7 +51,8 @@ Format: `- [ ] <one-line idea> — *<short rationale>*`
 - [x] **exp0022**: source voxel 0.4m (0.88 → 0.87% full, NEW BEST)
 - [x] **exp0023**: Tr yaw perturbation (REJECT, flawed methodology)
 - [x] **exp0024**: KITTI scan correction on src=0.4m (PARTIAL, budget bust)
-- [x] **exp0025**: KITTI scan correction on src=0.5m (REJECT, slight regression)
+- [x] **exp0025**: KITTI scan correction on src=0.5m (DEV reject but FULL 0.87 → **0.77 NEW BEST** after diagnostic full eval)
+- [x] **exp0026**: scan correction + source 0.4m (full 0.804% regresses vs exp0025; stack interactions matter)
 
 ## Medium priority
 - [x] Voxel downsampling — *done in exp0001 (2.0 m, centroid representative)*
