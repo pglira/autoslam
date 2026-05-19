@@ -16,3 +16,4 @@ exp0013_p2pl-trim	exp0012_point-to-plane	2026-05-19T01:36:19Z	cpp	reject	0.9496	
 exp0014_window-k30	exp0011_trim-motion-aware	2026-05-19T01:46:23Z	cpp	partial	37.7047	0.170999	61.660	0.694	0.465				600.0		24	Sliding-window K: 20 -> 30 (continue the K-scaling trend).
 exp0015_window-k25	exp0011_trim-motion-aware	2026-05-19T01:57:55Z	cpp	partial	37.7029	0.170974	61.660	0.688	0.468				600.0		22	K: 20 -> 25 (probe between exp0007 K=20 working and exp0014 K=30 timeout).
 exp0016_adaptive-threshold	exp0011_trim-motion-aware	2026-05-19T02:12:07Z	cpp	reject	0.7164	0.003116	0.771	0.664	0.455				508.7		20	KISS-ICP-style adaptive correspondence threshold τ = 3σ from constant-velocity deviation δ.
+exp0017_kiss-voxel	exp0016_adaptive-threshold	2026-05-19T02:22:54Z	cpp	partial	56.8215	0.269438	61.660	57.877	0.695				600.0		31	KISS-ICP voxel scheme: map 0.5m (denser), source 1.5m (sparser).

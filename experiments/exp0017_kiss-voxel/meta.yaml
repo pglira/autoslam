@@ -1,0 +1,7 @@
+parent: exp0016_adaptive-threshold
+description: "KISS-ICP voxel scheme: map 0.5m (denser), source 1.5m (sparser)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Opposite of my exp0008 (finer source) but matches KISS-ICP's recipe that achieves 0.50% on KITTI. Tests whether map-density or source-density is the binding constraint."
