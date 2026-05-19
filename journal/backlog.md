@@ -36,6 +36,9 @@ Format: `- [ ] <one-line idea> — *<short rationale>*`
 - [x] **exp0007**: window K=20 (2.15 → 1.71% full)
 - [x] **exp0008**: source voxel 0.5m (1.71 → 1.06% full)
 - [x] **exp0009**: trimmed ICP 80% (1.06 → 0.97% full, SUB-1%)
+- [x] **exp0010**: adaptive trim by corr/source ratio (null op, ratio always >0.40)
+- [x] **exp0011**: motion-aware trim skip (0.97 → 0.96% full, surgical 01 fix)
+- [x] **exp0012**: point-to-plane ICP alone (DEV REJECT, possibly trim confound)
 
 ## Medium priority
 - [x] Voxel downsampling — *done in exp0001 (2.0 m, centroid representative)*
