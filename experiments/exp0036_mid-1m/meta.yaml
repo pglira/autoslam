@@ -1,0 +1,7 @@
+parent: exp0035_tight-schedule
+description: "MAX_DIST_MID 0.7 → 1.0m. Restore highway iter-1 headroom while keeping fine 0.3m for precision."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "exp0035 partially recovered 01 (0.94 vs 0.79 target). 1.0m mid was exp0032's working tight value; should fully recover 01 without hurting iter 2+ precision."
