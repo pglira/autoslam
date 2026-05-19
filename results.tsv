@@ -20,3 +20,4 @@ exp0017_kiss-voxel	exp0016_adaptive-threshold	2026-05-19T02:22:54Z	cpp	partial	5
 exp0018_geman-mcclure	exp0011_trim-motion-aware	2026-05-19T02:35:25Z	cpp	reject	0.7375	0.003247	0.800	0.674	0.449				519.2		20	Add Geman-McClure robust kernel to Kabsch update: w_i = κ/(κ+d²)², κ=0.25 m².
 exp0019_kiss-combined	exp0016_adaptive-threshold	2026-05-19T02:46:12Z	cpp	reject	1.3312	0.005101	1.016	1.902	1.341				513.5		20	Full KISS-ICP recipe minus voxel scheme: adaptive τ + Geman-McClure with κ=(σ_t/3)².
 exp0020_trim-95	exp0011_trim-motion-aware	2026-05-19T03:13:55Z	cpp	keep	0.6790	0.002730	0.757	0.564	0.521	0.8847	0.003199	0.757/1.915/1.033/0.877/0.795/0.564/0.562/0.521/0.969/0.709/0.936	509.2	567.9	28	Gentler trim: TRIM_KEEP_FRAC 0.80 -> 0.95 (drop only the worst 5%).
+exp0021_trim-90	exp0020_trim-95	2026-05-19T07:07:49Z	cpp	reject	0.7000	0.002865	0.760	0.627	0.502				516.0		20	Trim sweep mid-point: 0.90 keep.

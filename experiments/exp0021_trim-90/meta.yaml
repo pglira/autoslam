@@ -1,0 +1,7 @@
+parent: exp0020_trim-95
+description: "Trim sweep mid-point: 0.90 keep."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "0.80 hurt 10, 0.95 hurt 07 slightly. 0.90 might be sweet spot for both."
