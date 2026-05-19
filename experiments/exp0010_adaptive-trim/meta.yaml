@@ -1,0 +1,7 @@
+parent: exp0009_trimmed-icp-80
+description: "Adaptive trim: only drop worst 20% if corrs > 40% of source (dense scene). Sparse scenes (highway) keep all."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Recover 01 (1.90->2.14 regression) and 10 (0.76->1.23 regression) while keeping the dense-scene wins (07: 0.82->0.45 was)."
