@@ -1,0 +1,7 @@
+parent: exp0038_kiss-port
+description: "exp0038 + LM-style diagonal regularization (λ=1e-3) on AtA to make Cholesky robust to near-PSD systems."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "exp0038's iters=1 bug was Cholesky failing on near-singular 6x6 systems. Marquardt regularization should fix it; KISS-ICP uses Eigen LDLT which has built-in robustness."
