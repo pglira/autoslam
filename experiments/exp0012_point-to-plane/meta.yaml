@@ -1,0 +1,7 @@
+parent: exp0011_trim-motion-aware
+description: "Point-to-plane ICP with k=8 PCA normals; trim block dropped (single-variable change)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Surface-aware alignment cuts the bias from point-to-point's isotropic pull. Expect material AGG improvement (~0.5-0.8% absolute), biggest on structured urban (00, 02, 05, 06, 07, 08)."
