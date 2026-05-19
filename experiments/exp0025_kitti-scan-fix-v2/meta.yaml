@@ -1,0 +1,7 @@
+parent: exp0020_trim-95
+description: "KITTI per-point vertical-angle correction (+0.205°) on exp0020 base (source voxel 0.5m, more budget headroom)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Same as exp0024 but isolating from the budget-stress confound: forks from exp0020 (0.5m source) rather than exp0022 (0.4m). Universal small improvement expected — documented sensor fix, used by IMLS-SLAM/CT-ICP/KISS-ICP."

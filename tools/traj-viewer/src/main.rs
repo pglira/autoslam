@@ -154,21 +154,37 @@ impl App {
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _: &mut eframe::Frame) {
+        // handle keyboard: up/down to navigate experiments
+        if ctx.input(|i| i.key_pressed(egui::Key::ArrowUp)) {
+            if let Some(idx) = self.selected_idx {
+                if idx > 0 {
+                    self.select(idx - 1);
+                }
+            }
+        }
+        if ctx.input(|i| i.key_pressed(egui::Key::ArrowDown)) {
+            if let Some(idx) = self.selected_idx {
+                if idx + 1 < self.experiments.len() {
+                    self.select(idx + 1);
+                }
+            }
+        }
+
         // ---- left: experiment list ----
         egui::SidePanel::left("experiments")
             .resizable(true)
-            .default_width(360.0)
+            .default_width(280.0)
             .show(ctx, |ui| {
                 ui.heading("experiments");
                 ui.label(format!("{} found", self.experiments.len()));
                 ui.separator();
-                ScrollArea::vertical().show(ui, |ui| {
+                ScrollArea::vertical().auto_shrink([false; 2]).show(ui, |ui| {
                     let mut new_sel = None;
                     for (i, e) in self.experiments.iter().enumerate() {
                         let selected = self.selected_idx == Some(i);
-                        let label = format_exp_label(e);
+                        let label = format_exp_label_compact(e);
                         if ui
-                            .selectable_label(selected, RichText::new(label).monospace())
+                            .selectable_label(selected, RichText::new(label).monospace().size(11.0))
                             .on_hover_text(&e.description)
                             .clicked()
                         {
@@ -280,22 +296,22 @@ impl eframe::App for App {
     }
 }
 
-fn format_exp_label(e: &Experiment) -> String {
-    let dev = e
-        .dev_trans_pct
-        .map(|v| format!("{:>7.4}", v))
-        .unwrap_or_else(|| "      -".into());
-    let full = e
-        .full_trans_pct
-        .map(|v| format!("{:>7.4}", v))
-        .unwrap_or_else(|| "      -".into());
+fn format_exp_label_compact(e: &Experiment) -> String {
     let tag = match e.status.as_str() {
-        "keep" => "K",
-        "reject" => "R",
+        "keep" => "✓",
+        "reject" => "✗",
         "" => " ",
         _ => "?",
     };
-    format!("{tag} {}  dev={dev} full={full}", e.name)
+    let dev = e
+        .dev_trans_pct
+        .map(|v| format!("{:.2}%", v))
+        .unwrap_or_else(|| "-".into());
+    let full = e
+        .full_trans_pct
+        .map(|v| format!("{:.2}%", v))
+        .unwrap_or_else(|| "-".into());
+    format!("{} {} d={} f={}", tag, e.name, dev, full)
 }
 
 fn scan_experiments(repo: &Path) -> Vec<Experiment> {

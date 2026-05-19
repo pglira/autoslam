@@ -47,6 +47,11 @@ Format: `- [ ] <one-line idea> — *<short rationale>*`
 - [x] **exp0018**: Geman-McClure kernel, fixed κ (REJECT — fixed scale wrong)
 - [x] **exp0019**: adaptive τ + adaptive κ (REJECT — κ collapse on smooth motion)
 - [x] **exp0020**: gentler trim 95% (0.96 → 0.88% full, NEW BEST)
+- [x] **exp0021**: trim 0.90 sweep midpoint (REJECT, 0.95 still best)
+- [x] **exp0022**: source voxel 0.4m (0.88 → 0.87% full, NEW BEST)
+- [x] **exp0023**: Tr yaw perturbation (REJECT, flawed methodology)
+- [x] **exp0024**: KITTI scan correction on src=0.4m (PARTIAL, budget bust)
+- [x] **exp0025**: KITTI scan correction on src=0.5m (REJECT, slight regression)
 
 ## Medium priority
 - [x] Voxel downsampling — *done in exp0001 (2.0 m, centroid representative)*
