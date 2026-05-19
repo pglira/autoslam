@@ -1,0 +1,7 @@
+parent: exp0027_tight-1m
+description: "MAX_DIST_LOOSE 3.0 → 2.0m. Same logic as exp0027's tighter-tight win."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Corrected scans + const-vel init place source close to target on iter 0 too. 3.0m gate over-generous; tighten."

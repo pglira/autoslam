@@ -3,11 +3,10 @@
 > Current research state. Past states preserved in git history; do not append-log here.
 
 ## Current best
-- **exp0025_kitti-scan-fix-v2** — dev 0.6447%, **full 0.7748%**, rot 0.0030 deg/m.
-- Per-seq full: `00=0.72 01=1.04 02=0.70 03=0.88 04=0.42 05=0.52 06=0.35 07=0.55 08=1.03 09=1.04 10=0.91`.
-- Now ranked between leaderboard's #15 KISS-ICP (0.61%) and #20 filter-reg (0.65%) — equivalent to mid-leaderboard territory.
+- **exp0029_loose-2m** — dev 0.6377%, **full 0.7593%**, rot 0.0030 deg/m.
+- Per-seq full: `00=0.71 01=0.89 02=0.69 03=0.87 04=0.41 05=0.52 06=0.34 07=0.55 08=1.02 09=1.02 10=0.91`.
 
-## Trajectory after 26 experiments
+## Trajectory after 29 experiments
 ```
 exp0000_identity         60.41%
 exp0001_naive-p2p-icp    25.23%
@@ -22,38 +21,54 @@ exp0009_trimmed-icp-80    0.97%
 exp0011_trim-motion-aware 0.96%
 exp0020_trim-95           0.88%
 exp0022_src-voxel-04      0.87%
-exp0025_kitti-scan-fix-v2 0.77%  <- current best
+exp0025_kitti-scan-fix-v2 0.77%
+exp0027_tight-1m          0.76%
+exp0029_loose-2m          0.76%  <- current best
 ```
 
-## Critical methodology lesson from exp0025
+Mid-leaderboard territory: 0.76% sits below KISS-ICP rank 15 (0.61%), filter-reg rank 20 (0.65%), SiMpLE rank 17 (0.62%). Roughly equivalent to rank 25-30 on the official KITTI odometry leaderboard.
 
-**Dev set (00, 05, 07) is urban-biased and CANNOT detect changes that benefit highway/long-distance sequences.** exp0025 rejected on dev (0.6447 vs 0.6346) but ACTUALLY DOMINATED on full (0.7748 vs 0.8729). The user correctly pushed back when I trusted the dev-reject signal alone.
+## Last block (exp0027 – exp0029)
 
-When a change has strong literature support but ambiguous dev results, force a `--full` evaluation as a diagnostic. Specifically applies to:
-- Sensor-intrinsic corrections that affect all data uniformly
-- Changes targeting failure modes (highway, long drift) not present in dev
-- Anything inspired by published methods that report different metrics
+| Exp | Change | Full AGG | Result |
+|---|---|---|---|
+| 0027 | MAX_DIST_TIGHT 1.5→1.0 (on scan-corrected base) | 0.7609 | NEW BEST (seq 01 1.04→0.89 standout) |
+| 0028 | retry p2pl on scan-corrected base | 0.9113 | REGRESS — p2pl avenue closed (2nd failure) |
+| 0029 | MAX_DIST_LOOSE 3.0→2.0 | 0.7593 | NEW BEST (marginal, noise-level) |
 
-## Last single experiment (exp0026)
+## Key methodology lesson (recurring)
 
-Tried stacking scan correction with source voxel 0.4m. Result: full 0.804% — small REGRESSION vs exp0025 (0.775%). The two changes do NOT compose additively. 10 of 11 sequences slightly regressed.
+For tight-gate / sensor-correction style changes, **dev set (00, 05, 07) systematically under-detects improvements** because the wins concentrate on highway (01) and long sequences (02, 08). Force `--full` diagnostic when:
+- The change has strong literature backing (e.g., +0.205° scan correction in IMLS-SLAM/CT-ICP/KISS-ICP).
+- The hypothesis predicts effect on sequences NOT in dev.
+- Dev shows a near-tie (<0.01 difference from current best).
 
-Possible: with corrected geometry, the finer source picks up noise that was previously masked. Or non-linear interaction in ICP convergence.
+p2pl was the counter-example: dev predicted bad, full confirmed bad. So the heuristic works in both directions: when literature is unambiguous, dev under-estimates; when methodology is shaky, dev correctly catches the regression.
+
+## Closed avenues (don't revisit without new evidence)
+
+- **Point-to-plane ICP** with k=8 PCA normals. Two failures (exp0012, exp0028). Naive p2pl drop-in doesn't work in this sliding-window deque pipeline. SOTA p2pl methods (LOAM, CT-ICP) use additional machinery (scan-ring classification, continuous-time motion) we don't have.
+- **KISS-ICP voxel scheme swap** (map 0.5m / source 1.5m). Busts compute budget in our K=20 deque structure (exp0017).
+- **Random Tr extrinsic perturbations** (exp0023). Fitting-to-test methodology; rejected by user.
+- **KISS-ICP adaptive τ + κ collapse on smooth motion** (exp0019). Recipe doesn't transfer without their voxel-grid map.
 
 ## Direction for next sessions
 
-1. **Investigate seq 09 regression in exp0025** (the only sequence the scan correction hurt: 0.66 → 1.04). Hypothesis: 09's specific motion pattern interacts with the bias differently.
-2. **Smaller tuning on exp0025 base**: MAX_DIST schedule, trim fractions, K window.
-3. **LOAM feature classification**: ranks #3 on leaderboard at 0.55%; the path to sub-0.7%.
-4. **Voxel grid local map** (KISS-ICP-style with bounded N_max/voxel): structural change to unlock further KISS-ICP-style improvements.
+The remaining gap to top-leaderboard (~0.2% AGG to KISS-ICP, ~0.4% to LOAM family) likely requires structural changes, not parameter tuning:
+
+1. **LOAM feature classification** — eigenvalue-based local PCA per point, separate edge vs planar features, point-to-line + point-to-plane residuals. ~200 LOC of new code. Highest-EV next attempt.
+2. **Voxel-grid local map** (KISS-ICP-style with bounded N_max per voxel + r_max): structural change that would unlock proper KISS-ICP voxel sizing.
+3. **Continuous-time motion model** (CT-ICP-style): deformable trajectory within a sweep. Bigger change.
+
+Smaller tunings (current axis):
+- 08 and 09 plateau at ~1.02% — long-loop drift. May be the ceiling for frame-to-map without loop closure.
+- 10 residential at 0.91% — slight regression observed across multiple experiments; possibly dynamic-feature contamination.
 
 ## What's working (don't lose)
-- Const-vel init, K=20 sliding window, kd-tree NN with k-NN, voxel 1.0m map / **0.5m source** (NOT 0.4m on top of correction), MAX_DIST 3.0/1.5, motion-aware gentle trim (95%), **KITTI per-point +0.205° vertical-angle correction**, deterministic single-threaded.
-- 26 experiments, all builds clean.
-- Wall full-eval ~630s.
+- Const-vel init, K=20 sliding window, kd-tree NN with k-NN, voxel 1.0m map / 0.5m source, MAX_DIST 2.0m loose / 1.0m tight, motion-aware gentle trim (95% keep), **KITTI per-point +0.205° scan correction**, deterministic single-threaded.
+- 29 experiments, all builds clean. Wall full-eval ~630s. Single-file C++17, zero external deps.
 
 ## Open questions
-- Why does the KITTI scan correction help broadly but hurt seq 09 (0.66 → 1.04)?
-- Why does combining two independently-positive changes (scan correction + 0.4m source) regress? Stack interactions.
-- LOAM ranks 0.55% with edge/plane feature classification — is that path worth ~200 LOC of new feature extraction code?
-- 01 highway after scan correction: 1.04% — down from 2.0% pre-correction. Still the highest-error sequence. Frame-to-map ceiling?
+- Why does seq 09 regress with scan correction (0.66 → 1.04, persistent across exp0025-0029)?
+- 08 and 09 both ~1.02% — coupled to long-loop drift?
+- Is LOAM feature classification worth the implementation effort vs. accepting current 0.76%?
