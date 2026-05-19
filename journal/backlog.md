@@ -36,9 +36,17 @@ Format: `- [ ] <one-line idea> — *<short rationale>*`
 - [x] **exp0007**: window K=20 (2.15 → 1.71% full)
 - [x] **exp0008**: source voxel 0.5m (1.71 → 1.06% full)
 - [x] **exp0009**: trimmed ICP 80% (1.06 → 0.97% full, SUB-1%)
-- [x] **exp0010**: adaptive trim by corr/source ratio (null op, ratio always >0.40)
+- [x] **exp0010**: adaptive trim by corr/source ratio (null op)
 - [x] **exp0011**: motion-aware trim skip (0.97 → 0.96% full, surgical 01 fix)
-- [x] **exp0012**: point-to-plane ICP alone (DEV REJECT, possibly trim confound)
+- [x] **exp0012**: point-to-plane ICP alone (REJECT — confound)
+- [x] **exp0013**: p2pl + trim (REJECT, p2pl confirmed regression)
+- [x] **exp0014**: window K=30 (PARTIAL — budget bust)
+- [x] **exp0015**: window K=25 (PARTIAL — budget bust, K=20 is ceiling)
+- [x] **exp0016**: adaptive τ (KISS-ICP §III-D) (TIED — no win alone)
+- [x] **exp0017**: KISS voxel scheme (PARTIAL — map size busts cap)
+- [x] **exp0018**: Geman-McClure kernel, fixed κ (REJECT — fixed scale wrong)
+- [x] **exp0019**: adaptive τ + adaptive κ (REJECT — κ collapse on smooth motion)
+- [x] **exp0020**: gentler trim 95% (0.96 → 0.88% full, NEW BEST)
 
 ## Medium priority
 - [x] Voxel downsampling — *done in exp0001 (2.0 m, centroid representative)*

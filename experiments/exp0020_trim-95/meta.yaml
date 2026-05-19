@@ -1,0 +1,7 @@
+parent: exp0011_trim-motion-aware
+description: "Gentler trim: TRIM_KEEP_FRAC 0.80 -> 0.95 (drop only the worst 5%)."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "80% was too aggressive on sparse scenes (10 regressed 0.76->1.23). 95% keeps more signal while still dropping the worst-fit matches."
