@@ -1,0 +1,7 @@
+parent: exp0034_tight-03
+description: "3-stage gate schedule: 2.0m loose iter 0, 0.7m mid iter 1, 0.3m fine iter 2+."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "exp0034's 0.3m fixed gate hurt 01 (highway, +0.20) and 04 (short, +0.47). A cooling schedule keeps the tight-gate wins on long sequences (09, 10) while giving fast/short sequences room to converge on iter 1."
