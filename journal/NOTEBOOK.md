@@ -68,7 +68,13 @@ Smaller tunings (current axis):
 - Const-vel init, K=20 sliding window, kd-tree NN with k-NN, voxel 1.0m map / 0.5m source, MAX_DIST 2.0m loose / 1.0m tight, motion-aware gentle trim (95% keep), **KITTI per-point +0.205° scan correction**, deterministic single-threaded.
 - 29 experiments, all builds clean. Wall full-eval ~630s. Single-file C++17, zero external deps.
 
+## Seq 08 caveat — GT IS BUGGY
+
+User observation: **KITTI seq 08's published ground truth has errors at the beginning of the sequence.** A perfect SLAM would still score poorly there. Implications:
+- Don't chase seq 08's per-seq number. It's been hovering around 1.00% across many experiments even after AGG improved sharply.
+- The "08/09 plateau" hypothesis is probably wrong — 08 is partly GT noise. 09 is the real signal for long-loop drift.
+- AGG full-set still includes 08 (KITTI's official metric); we just don't optimize against it specifically.
+
 ## Open questions
-- Why does seq 09 regress with scan correction (0.66 → 1.04, persistent across exp0025-0029)?
-- 08 and 09 both ~1.02% — coupled to long-loop drift?
-- Is LOAM feature classification worth the implementation effort vs. accepting current 0.76%?
+- Why does seq 09 regress with scan correction (0.66 → ~1.00, persistent across exp0025-0032)? Now the cleanest signal for long-sequence behavior.
+- Is LOAM feature classification worth the implementation effort vs. accepting current 0.74%?
