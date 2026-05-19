@@ -1,0 +1,7 @@
+parent: exp0011_trim-motion-aware
+description: "Add Geman-McClure robust kernel to Kabsch update: w_i = κ/(κ+d²)², κ=0.25 m²."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Soft outlier rejection complements the existing hard MAX_DIST gate. Should help on sequences with parked-vehicles or sparse features (10, 03, 01)."
