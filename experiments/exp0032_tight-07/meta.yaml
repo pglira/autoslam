@@ -1,0 +1,7 @@
+parent: exp0029_loose-2m
+description: "MAX_DIST_TIGHT 1.0 → 0.7m. Continue the tight-gate trend that won in exp0027."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Residuals after scan correction + const-vel init are typically <0.5m. The 1.0m gate has 2x headroom; tightening to 0.7m drops more outlier matches without losing valid ones."
