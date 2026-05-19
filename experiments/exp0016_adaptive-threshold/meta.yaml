@@ -1,0 +1,7 @@
+parent: exp0011_trim-motion-aware
+description: "KISS-ICP-style adaptive correspondence threshold τ = 3σ from constant-velocity deviation δ."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "Data-driven τ outperforms my fixed 3.0/1.5m schedule. Should help especially on highway (01) where 1.5m tight gate is too aggressive."
