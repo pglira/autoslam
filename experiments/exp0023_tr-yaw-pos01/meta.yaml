@@ -1,0 +1,7 @@
+parent: exp0022_src-voxel-04
+description: "Tr extrinsic perturbed by +0.1° around velo Z (yaw). Calibration angle probe."
+language: cpp
+deps: []
+threads: 1
+deterministic: true
+hypothesis: "If KITTI's Tr_velo_cam has small yaw calibration error, +0.1° correction in this direction would improve trajectory. Most leverage on long sequences (00, 02, 08). Honest probe: one direction, accept result either way."
