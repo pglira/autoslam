@@ -53,6 +53,9 @@ Format: `- [ ] <one-line idea> — *<short rationale>*`
 - [x] **exp0024**: KITTI scan correction on src=0.4m (PARTIAL, budget bust)
 - [x] **exp0025**: KITTI scan correction on src=0.5m (DEV reject but FULL 0.87 → **0.77 NEW BEST** after diagnostic full eval)
 - [x] **exp0026**: scan correction + source 0.4m (full 0.804% regresses vs exp0025; stack interactions matter)
+- [x] **exp0027**: MAX_DIST_TIGHT 1.5→1.0m on scan-corrected base (0.77 → **0.76 NEW BEST**; seq 01 standout 1.04→0.89)
+- [x] **exp0028**: retry p2pl on scan-corrected base (REGRESS to 0.91; 2nd p2pl failure, avenue closed)
+- [x] **exp0029**: MAX_DIST_LOOSE 3.0→2.0m (0.7593% marginal new best; loose gate no longer binding)
 
 ## Medium priority
 - [x] Voxel downsampling — *done in exp0001 (2.0 m, centroid representative)*
